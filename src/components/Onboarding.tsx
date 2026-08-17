@@ -164,6 +164,10 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
               هدفك: <strong>{preview.targetCal}</strong> سعرة و{" "}
               <strong>{preview.targetProt}</strong> غ بروتين
             </p>
+            <p className="mt-1">
+              كارب: <strong>{preview.targetCarbs}</strong> غ · دهون:{" "}
+              <strong>{preview.targetFats}</strong> غ
+            </p>
           </div>
 
           <Button type="submit" className="w-full" size="lg">
