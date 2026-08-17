@@ -54,6 +54,8 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
               goal,
               targetCal: t.targetCal,
               targetProt: t.targetProt,
+              targetCarbs: t.targetCarbs,
+              targetFats: t.targetFats,
             });
           }}
           className="space-y-4 rounded-3xl border border-border bg-card p-5 shadow-card"
