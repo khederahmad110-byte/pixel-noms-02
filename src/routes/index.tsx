@@ -38,7 +38,15 @@ function Index() {
       const log = localStorage.getItem(LOG_KEY);
       if (log) {
         const parsed = JSON.parse(log) as { day: string; entries: FoodEntry[] };
-        if (parsed.day === todayKey()) setEntries(parsed.entries);
+        if (parsed.day === todayKey())
+          setEntries(
+            parsed.entries.map((e) => ({
+              ...e,
+              type: e.type ?? "سناك",
+              carbs: e.carbs ?? 0,
+              fats: e.fats ?? 0,
+            })),
+          );
       }
     } catch {
       /* ignore corrupt storage */

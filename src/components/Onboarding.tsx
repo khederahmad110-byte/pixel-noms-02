@@ -54,6 +54,8 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
               goal,
               targetCal: t.targetCal,
               targetProt: t.targetProt,
+              targetCarbs: t.targetCarbs,
+              targetFats: t.targetFats,
             });
           }}
           className="space-y-4 rounded-3xl border border-border bg-card p-5 shadow-card"
@@ -161,6 +163,10 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
             <p className="mt-1">
               هدفك: <strong>{preview.targetCal}</strong> سعرة و{" "}
               <strong>{preview.targetProt}</strong> غ بروتين
+            </p>
+            <p className="mt-1">
+              كارب: <strong>{preview.targetCarbs}</strong> غ · دهون:{" "}
+              <strong>{preview.targetFats}</strong> غ
             </p>
           </div>
 
