@@ -143,6 +143,8 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
   --protein: oklch(0.7 0.15 250);
+  --carbs: oklch(0.8 0.14 75);
+  --fats: oklch(0.68 0.16 305);
   --success: oklch(0.7 0.15 150);
   --gradient-hero: linear-gradient(135deg, oklch(0.42 0.1 156), oklch(0.45 0.09 190));
   --shadow-card: 0 10px 30px -12px oklch(0 0 0 / 0.5);
