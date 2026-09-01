@@ -74,7 +74,14 @@ export const analyzeMeal = createServerFn({ method: "POST" })
 
     const parsed = JSON.parse(match[0]) as Partial<MealAnalysis>;
     const num = (v: unknown) => Math.max(0, Math.round(Number(v) || 0));
+    const rawMicros = (parsed.micros ?? {}) as Record<string, unknown>;
+    const micros: MicroAmounts = {};
+    for (const k of MICRO_KEYS) {
+      const v = Math.max(0, Number(rawMicros[k]) || 0);
+      if (v > 0) micros[k] = Math.round(v * 10) / 10;
+    }
     return {
+      micros,
       name: parsed.name || data.text?.trim() || "وجبة محللة بالصورة",
       calories: num(parsed.calories),
       protein: num(parsed.protein),
