@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { MICRO_KEYS, type MicroAmounts } from "@/lib/micronutrients";
 
 const inputSchema = z
   .object({
@@ -17,11 +18,12 @@ export type MealAnalysis = {
   carbs: number;
   fats: number;
   items: string[];
+  micros: MicroAmounts;
   confidence: "low" | "medium" | "high";
 };
 
 const SYSTEM_PROMPT =
-  'أنت خبير تغذية. حلل الوجبة (صورة أو وصف نصي بمكونات متعددة) وقدّر إجمالي السعرات والبروتين والكربوهيدرات والدهون للحصة الظاهرة/المذكورة. أعد JSON فقط بالشكل: {"name":string بالعربية,"items":string[] بالعربية لكل مكوّن,"calories":number,"protein":number,"carbs":number,"fats":number,"confidence":"low"|"medium"|"high"} بدون أي نص إضافي.';
+  'أنت خبير تغذية. حلل الوجبة (صورة أو وصف نصي بمكونات متعددة) وقدّر إجمالي السعرات والبروتين والكربوهيدرات والدهون والمغذيات الدقيقة للحصة الظاهرة/المذكورة. أعد JSON فقط بالشكل: {"name":string بالعربية,"items":string[] بالعربية لكل مكوّن,"calories":number,"protein":number,"carbs":number,"fats":number,"micros":{"vitaminA":مكغ,"vitaminC":ملغ,"vitaminD":مكغ,"vitaminE":ملغ,"vitaminB12":مكغ,"folate":مكغ,"iron":ملغ,"calcium":ملغ,"magnesium":ملغ,"zinc":ملغ,"potassium":ملغ},"confidence":"low"|"medium"|"high"} كل قيم micros أرقام تقديرية (0 إن كانت مهملة) بدون أي نص إضافي.';
 
 export const analyzeMeal = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
@@ -72,7 +74,14 @@ export const analyzeMeal = createServerFn({ method: "POST" })
 
     const parsed = JSON.parse(match[0]) as Partial<MealAnalysis>;
     const num = (v: unknown) => Math.max(0, Math.round(Number(v) || 0));
+    const rawMicros = (parsed.micros ?? {}) as Record<string, unknown>;
+    const micros: MicroAmounts = {};
+    for (const k of MICRO_KEYS) {
+      const v = Math.max(0, Number(rawMicros[k]) || 0);
+      if (v > 0) micros[k] = Math.round(v * 10) / 10;
+    }
     return {
+      micros,
       name: parsed.name || data.text?.trim() || "وجبة محللة بالصورة",
       calories: num(parsed.calories),
       protein: num(parsed.protein),

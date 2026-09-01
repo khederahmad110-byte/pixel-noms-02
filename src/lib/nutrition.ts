@@ -1,3 +1,5 @@
+import type { MicroAmounts } from "@/lib/micronutrients";
+
 export type Gender = "male" | "female";
 export type Goal = "gain" | "lose" | "maintain";
 export type Activity = "sedentary" | "light" | "moderate" | "high" | "athlete";
@@ -27,8 +29,55 @@ export type FoodEntry = {
   protein: number;
   carbs: number;
   fats: number;
+  micros?: MicroAmounts;
   at: number;
 };
+
+/** قالب محفوظ لإعادة استخدام وجبة بضغطة زر. */
+export type MealTemplate = {
+  id: string;
+  label: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  micros?: MicroAmounts;
+  uses: number;
+};
+
+export type WeightEntry = { id: string; weight: number; at: number };
+
+export const MACRO_NOTES: {
+  key: "calories" | "protein" | "carbs" | "fats";
+  emoji: string;
+  title: string;
+  note: string;
+}[] = [
+  {
+    key: "calories",
+    emoji: "🔥",
+    title: "السعرات الحرارية",
+    note: "وحدة الطاقة الكلية؛ فائضها يزيد الوزن ونقصها ينقصه، وهي المحرّك الأساسي لأي هدف.",
+  },
+  {
+    key: "protein",
+    emoji: "🥩",
+    title: "البروتين",
+    note: "يبني العضلات ويصلحها، يزيد الشبع ويحافظ على الكتلة العضلية أثناء التنشيف.",
+  },
+  {
+    key: "carbs",
+    emoji: "🍞",
+    title: "الكربوهيدرات",
+    note: "الوقود المفضل للدماغ والعضلات؛ تملأ مخزون الغلايكوجين وترفع أداء التمرين.",
+  },
+  {
+    key: "fats",
+    emoji: "🥑",
+    title: "الدهون",
+    note: "ضرورية للهرمونات وامتصاص الفيتامينات A وD وE وK وصحة الخلايا والدماغ.",
+  },
+];
 
 export const ACTIVITY_FACTORS: Record<Activity, number> = {
   sedentary: 1.2,
