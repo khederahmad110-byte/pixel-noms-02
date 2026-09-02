@@ -29,7 +29,7 @@ export type FoodEntry = {
   protein: number;
   carbs: number;
   fats: number;
-  micros?: MicroAmounts;
+  micros?: MicroAmounts | undefined;
   at: number;
 };
 
@@ -41,7 +41,7 @@ export type MealTemplate = {
   protein: number;
   carbs: number;
   fats: number;
-  micros?: MicroAmounts;
+  micros?: MicroAmounts | undefined;
   uses: number;
 };
 
