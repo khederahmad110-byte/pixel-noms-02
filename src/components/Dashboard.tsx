@@ -5,10 +5,7 @@ import {
   BellRing,
   Camera,
   Loader2,
-  Minus,
-  Plus,
   RotateCcw,
-  Save,
   Scale,
   Search,
   Star,
@@ -18,10 +15,11 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatBar } from "@/components/StatBar";
 import { MicroTracker } from "@/components/MicroTracker";
+import { HistoryView } from "@/components/HistoryView";
+import type { DayArchive } from "@/lib/history";
 import { EditPlanDialog } from "@/components/EditPlanDialog";
 import { analyzeMeal, type MealAnalysis } from "@/lib/analyze-meal.functions";
 import { MICRO_INFO, calcDRI, sumMicros, MICRO_KEYS } from "@/lib/micronutrients";
@@ -43,6 +41,7 @@ export function Dashboard({
   entries,
   templates,
   weights,
+  archive,
   weighInDue,
   onAdd,
   onRemove,
@@ -56,6 +55,7 @@ export function Dashboard({
   entries: FoodEntry[];
   templates: MealTemplate[];
   weights: WeightEntry[];
+  archive: DayArchive;
   weighInDue: boolean;
   onAdd: (e: Omit<FoodEntry, "id" | "at">) => void;
   onRemove: (id: string) => void;
@@ -68,15 +68,9 @@ export function Dashboard({
   const analyze = useServerFn(analyzeMeal);
   const fileRef = useRef<HTMLInputElement>(null);
   const [mealType, setMealType] = useState<MealType>("فطور");
-  const [portion, setPortion] = useState(1);
   const [image, setImage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [textInput, setTextInput] = useState("");
-  const [customName, setCustomName] = useState("");
-  const [customCal, setCustomCal] = useState("");
-  const [customProt, setCustomProt] = useState("");
-  const [customCarbs, setCustomCarbs] = useState("");
-  const [customFats, setCustomFats] = useState("");
   const [newWeight, setNewWeight] = useState(String(profile.weight));
 
   const consumed = entries.reduce(
@@ -206,9 +200,10 @@ export function Dashboard({
         </header>
 
         <Tabs defaultValue="today" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="today">🍽️ اليوم</TabsTrigger>
             <TabsTrigger value="micros">💊 المغذيات</TabsTrigger>
+            <TabsTrigger value="history">📅 السجل</TabsTrigger>
             <TabsTrigger value="profile">👤 الملف</TabsTrigger>
           </TabsList>
 
@@ -518,6 +513,11 @@ export function Dashboard({
           {/* ============ المغذيات الدقيقة ============ */}
           <TabsContent value="micros" className="mt-5">
             <MicroTracker profile={profile} entries={entries} />
+          </TabsContent>
+
+          {/* ============ السجل والأرشيف ============ */}
+          <TabsContent value="history" className="mt-5">
+            <HistoryView archive={archive} profile={profile} />
           </TabsContent>
 
           {/* ============ الملف الشخصي ============ */}
