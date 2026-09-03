@@ -5,10 +5,7 @@ import {
   BellRing,
   Camera,
   Loader2,
-  Minus,
-  Plus,
   RotateCcw,
-  Save,
   Scale,
   Search,
   Star,
@@ -18,10 +15,11 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatBar } from "@/components/StatBar";
 import { MicroTracker } from "@/components/MicroTracker";
+import { HistoryView } from "@/components/HistoryView";
+import type { DayArchive } from "@/lib/history";
 import { EditPlanDialog } from "@/components/EditPlanDialog";
 import { analyzeMeal, type MealAnalysis } from "@/lib/analyze-meal.functions";
 import { MICRO_INFO, calcDRI, sumMicros, MICRO_KEYS } from "@/lib/micronutrients";
@@ -43,6 +41,7 @@ export function Dashboard({
   entries,
   templates,
   weights,
+  archive,
   weighInDue,
   onAdd,
   onRemove,
@@ -56,6 +55,7 @@ export function Dashboard({
   entries: FoodEntry[];
   templates: MealTemplate[];
   weights: WeightEntry[];
+  archive: DayArchive;
   weighInDue: boolean;
   onAdd: (e: Omit<FoodEntry, "id" | "at">) => void;
   onRemove: (id: string) => void;
@@ -68,15 +68,9 @@ export function Dashboard({
   const analyze = useServerFn(analyzeMeal);
   const fileRef = useRef<HTMLInputElement>(null);
   const [mealType, setMealType] = useState<MealType>("فطور");
-  const [portion, setPortion] = useState(1);
   const [image, setImage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [textInput, setTextInput] = useState("");
-  const [customName, setCustomName] = useState("");
-  const [customCal, setCustomCal] = useState("");
-  const [customProt, setCustomProt] = useState("");
-  const [customCarbs, setCustomCarbs] = useState("");
-  const [customFats, setCustomFats] = useState("");
   const [newWeight, setNewWeight] = useState(String(profile.weight));
 
   const consumed = entries.reduce(
@@ -206,9 +200,10 @@ export function Dashboard({
         </header>
 
         <Tabs defaultValue="today" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="today">🍽️ اليوم</TabsTrigger>
             <TabsTrigger value="micros">💊 المغذيات</TabsTrigger>
+            <TabsTrigger value="history">📅 السجل</TabsTrigger>
             <TabsTrigger value="profile">👤 الملف</TabsTrigger>
           </TabsList>
 
@@ -334,114 +329,88 @@ export function Dashboard({
               </Button>
             </section>
 
-            {templates.length > 0 && (
-              <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
-                <h2 className="font-semibold">⭐ وجباتي المحفوظة (إعادة استخدام سريعة)</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  كل وجبة أدخلتها تُحفظ هنا — ضغطة واحدة لإعادة تسجيلها.
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {templates.map((t) => (
-                    <li
-                      key={t.id}
-                      className="flex items-center justify-between gap-2 rounded-2xl border border-border bg-secondary p-3"
-                    >
-                      <button
-                        type="button"
-                        className="flex-1 text-right"
-                        onClick={() => {
-                          onAdd({
-                            label: `⭐ ${t.label}`,
-                            type: mealType,
-                            calories: t.calories,
-                            protein: t.protein,
-                            carbs: t.carbs,
-                            fats: t.fats,
-                            micros: t.micros,
-                          });
-                          toast.success(`أُضيفت ${t.label}`);
-                        }}
-                      >
-                        <span className="text-sm font-medium text-secondary-foreground">
-                          {t.label}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-muted-foreground">
-                          🔥 {t.calories} · 🥩 {t.protein}غ · 🍞 {t.carbs}غ · 🥑 {t.fats}غ
-                          {t.uses > 0 ? ` · استُخدمت ${t.uses} مرة` : ""}
-                        </span>
-                      </button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label="حذف القالب"
-                        onClick={() => onDeleteTemplate(t.id)}
-                      >
-                        <Trash2 className="size-4 text-destructive" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold">إضافة سريعة</h2>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() =>
-                      setPortion((p) => Math.max(0.5, +(p - 0.5).toFixed(1)))
-                    }
-                    aria-label="تقليل الكمية"
-                  >
-                    <Minus className="size-4" />
-                  </Button>
-                  <span className="w-16 text-center text-sm font-semibold">
-                    {portion} حصة
-                  </span>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => setPortion((p) => Math.min(5, +(p + 0.5).toFixed(1)))}
-                    aria-label="زيادة الكمية"
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
+              <h2 className="font-semibold">🍱 الأغذية</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                اضغط على أي غذاء ليُحفظ فوراً في سجل اليوم بسعراته وماكروزه تحت وجبة «
+                {mealType}».
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 {QUICK_MEALS.map((m) => (
                   <button
                     key={m.label}
                     type="button"
                     onClick={() => {
                       onAdd({
-                        label: `${m.emoji} ${m.label}${portion !== 1 ? ` ×${portion}` : ""}`,
+                        label: `${m.emoji} ${m.label}`,
                         type: mealType,
-                        calories: Math.round(m.calories * portion),
-                        protein: Math.round(m.protein * portion),
-                        carbs: Math.round(m.carbs * portion),
-                        fats: Math.round(m.fats * portion),
+                        calories: m.calories,
+                        protein: m.protein,
+                        carbs: m.carbs,
+                        fats: m.fats,
                       });
-                      toast.success(`أُضيفت ${m.label}`);
+                      toast.success(`أُضيفت ${m.label} إلى سجل اليوم`);
                     }}
                     className="rounded-2xl border border-border bg-secondary p-3 text-right text-sm font-medium text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     <span className="block text-lg">{m.emoji}</span>
                     {m.label}
                     <span className="mt-1 block text-xs text-muted-foreground">
-                      {Math.round(m.calories * portion)} سعرة ·{" "}
-                      {Math.round(m.protein * portion)}غ بروتين
+                      🔥 {m.calories} · 🥩 {m.protein}غ · 🍞 {m.carbs}غ · 🥑 {m.fats}غ
                     </span>
                   </button>
                 ))}
               </div>
+
+              {templates.length > 0 && (
+                <>
+                  <h3 className="mt-5 text-sm font-semibold">⭐ وجباتي المحفوظة</h3>
+                  <ul className="mt-2 space-y-2">
+                    {templates.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-center justify-between gap-2 rounded-2xl border border-border bg-secondary p-3"
+                      >
+                        <button
+                          type="button"
+                          className="flex-1 text-right"
+                          onClick={() => {
+                            onAdd({
+                              label: `⭐ ${t.label}`,
+                              type: mealType,
+                              calories: t.calories,
+                              protein: t.protein,
+                              carbs: t.carbs,
+                              fats: t.fats,
+                              micros: t.micros,
+                            });
+                            toast.success(`أُضيفت ${t.label} إلى سجل اليوم`);
+                          }}
+                        >
+                          <span className="text-sm font-medium text-secondary-foreground">
+                            {t.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            🔥 {t.calories} · 🥩 {t.protein}غ · 🍞 {t.carbs}غ · 🥑{" "}
+                            {t.fats}غ
+                            {t.uses > 0 ? ` · استُخدمت ${t.uses} مرة` : ""}
+                          </span>
+                        </button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="حذف القالب"
+                          onClick={() => onDeleteTemplate(t.id)}
+                        >
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </section>
+
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">📸 تحليل وجبة بالصورة (ذكاء اصطناعي)</h2>
@@ -484,86 +453,6 @@ export function Dashboard({
               )}
             </section>
 
-            <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
-              <h2 className="font-semibold">إضافة مخصصة</h2>
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                <div className="col-span-4 space-y-1">
-                  <Label htmlFor="cname">اسم الوجبة</Label>
-                  <Input
-                    id="cname"
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="مثال: أرز ودجاج"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="ccal">سعرات</Label>
-                  <Input
-                    id="ccal"
-                    type="number"
-                    value={customCal}
-                    onChange={(e) => setCustomCal(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="cprot">بروتين</Label>
-                  <Input
-                    id="cprot"
-                    type="number"
-                    value={customProt}
-                    onChange={(e) => setCustomProt(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="ccarb">كارب</Label>
-                  <Input
-                    id="ccarb"
-                    type="number"
-                    value={customCarbs}
-                    onChange={(e) => setCustomCarbs(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="cfat">دهون</Label>
-                  <Input
-                    id="cfat"
-                    type="number"
-                    value={customFats}
-                    onChange={(e) => setCustomFats(e.target.value)}
-                  />
-                </div>
-                <div className="col-span-4">
-                  <Button
-                    type="button"
-                    className="w-full"
-                    onClick={() => {
-                      const cal = Number(customCal);
-                      if (!customName.trim() || !cal) {
-                        toast.error("أدخل الاسم والسعرات");
-                        return;
-                      }
-                      const item = {
-                        label: customName.trim(),
-                        calories: Math.round(cal),
-                        protein: Math.round(Number(customProt) || 0),
-                        carbs: Math.round(Number(customCarbs) || 0),
-                        fats: Math.round(Number(customFats) || 0),
-                      };
-                      onAdd({ ...item, type: mealType });
-                      onSaveTemplate(item);
-                      toast.success("أُضيفت الوجبة وحُفظت للاستخدام السريع ⭐");
-                      setCustomName("");
-                      setCustomCal("");
-                      setCustomProt("");
-                      setCustomCarbs("");
-                      setCustomFats("");
-                    }}
-                  >
-                    <Save className="size-4" /> أضف واحفظ
-                  </Button>
-                </div>
-              </div>
-            </section>
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">سجل وجبات اليوم</h2>
@@ -624,6 +513,11 @@ export function Dashboard({
           {/* ============ المغذيات الدقيقة ============ */}
           <TabsContent value="micros" className="mt-5">
             <MicroTracker profile={profile} entries={entries} />
+          </TabsContent>
+
+          {/* ============ السجل والأرشيف ============ */}
+          <TabsContent value="history" className="mt-5">
+            <HistoryView archive={archive} profile={profile} />
           </TabsContent>
 
           {/* ============ الملف الشخصي ============ */}

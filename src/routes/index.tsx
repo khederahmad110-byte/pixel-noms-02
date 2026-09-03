@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { Onboarding } from "@/components/Onboarding";
 import { MEAL_REMINDERS, announce } from "@/lib/notify";
+import type { DayArchive } from "@/lib/history";
 import {
   calcTargets,
   todayKey,
@@ -42,6 +43,7 @@ const PROFILE_KEY = "nutri.profile";
 const LOG_KEY = "nutri.log";
 const TPL_KEY = "nutri.templates";
 const WEIGHT_KEY = "nutri.weights";
+const ARCHIVE_KEY = "nutri.archive";
 const REMINDER_KEY = "nutri.mealReminders";
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 
@@ -51,6 +53,7 @@ function Index() {
   const [entries, setEntries] = useState<FoodEntry[]>([]);
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
   const [weights, setWeights] = useState<WeightEntry[]>([]);
+  const [archive, setArchive] = useState<DayArchive>({});
 
   useEffect(() => {
     try {
@@ -88,15 +91,26 @@ function Index() {
       if (tpl) setTemplates(JSON.parse(tpl) as MealTemplate[]);
       const w = localStorage.getItem(WEIGHT_KEY);
       if (w) setWeights(JSON.parse(w) as WeightEntry[]);
+      const arc = localStorage.getItem(ARCHIVE_KEY);
+      if (arc) setArchive(JSON.parse(arc) as DayArchive);
     } catch {
       /* ignore corrupt storage */
     }
     setReady(true);
   }, []);
 
+  // حفظ سجل اليوم + أرشفته بشكل دائم ضمن السجل التاريخي
   useEffect(() => {
     if (!ready) return;
-    localStorage.setItem(LOG_KEY, JSON.stringify({ day: todayKey(), entries }));
+    const day = todayKey();
+    localStorage.setItem(LOG_KEY, JSON.stringify({ day, entries }));
+    setArchive((prev) => {
+      const next: DayArchive = { ...prev };
+      if (entries.length === 0) delete next[day];
+      else next[day] = entries;
+      localStorage.setItem(ARCHIVE_KEY, JSON.stringify(next));
+      return next;
+    });
   }, [entries, ready]);
 
   useEffect(() => {
@@ -158,6 +172,7 @@ function Index() {
       entries={entries}
       templates={templates}
       weights={weights}
+      archive={archive}
       weighInDue={weighInDue}
       onAdd={(e) =>
         setEntries((prev) => [
@@ -200,6 +215,8 @@ function Index() {
         localStorage.removeItem(LOG_KEY);
         localStorage.removeItem(TPL_KEY);
         localStorage.removeItem(WEIGHT_KEY);
+        localStorage.removeItem(ARCHIVE_KEY);
+        setArchive({});
         setEntries([]);
         setTemplates([]);
         setWeights([]);
