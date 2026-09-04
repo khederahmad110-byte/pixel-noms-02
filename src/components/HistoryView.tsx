@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   MONTH_LABELS,
@@ -44,9 +44,13 @@ function TotalsCard({
 export function HistoryView({
   archive,
   profile,
+  onDeleteDay,
+  onDeleteMonth,
 }: {
   archive: DayArchive;
   profile: Profile;
+  onDeleteDay: (dayKey: string) => void;
+  onDeleteMonth: (monthPrefix: string) => void;
 }) {
   const today = new Date();
   const [cursor, setCursor] = useState(
