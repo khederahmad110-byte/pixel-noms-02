@@ -26,9 +26,7 @@ import { MICRO_INFO, calcDRI, sumMicros, MICRO_KEYS } from "@/lib/micronutrients
 import { announce, requestNotifyPermission, speak } from "@/lib/notify";
 import {
   GOAL_LABELS,
-  MACRO_NOTES,
   MEAL_TYPES,
-  QUICK_MEALS,
   type FoodEntry,
   type MealTemplate,
   type MealType,
@@ -39,7 +37,6 @@ import {
 export function Dashboard({
   profile,
   entries,
-  templates,
   weights,
   archive,
   weighInDue,
@@ -47,7 +44,6 @@ export function Dashboard({
   onRemove,
   onReset,
   onSaveTemplate,
-  onDeleteTemplate,
   onUpdateProfile,
   onAddWeight,
 }: {
