@@ -1,0 +1,16 @@
+{
+  "name": "رفيق التغذية الذكي",
+  "short_name": "رفيق التغذية",
+  "description": "تتبّع سعراتك وماكروزك وفيتاميناتك وحقّق هدف وزنك مع رفيق التغذية الذكي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
