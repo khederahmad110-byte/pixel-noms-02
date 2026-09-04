@@ -46,6 +46,8 @@ export function Dashboard({
   onSaveTemplate,
   onUpdateProfile,
   onAddWeight,
+  onDeleteDay,
+  onDeleteMonth,
 }: {
   profile: Profile;
   entries: FoodEntry[];
@@ -60,6 +62,8 @@ export function Dashboard({
   onDeleteTemplate: (id: string) => void;
   onUpdateProfile: (p: Profile) => void;
   onAddWeight: (w: number) => void;
+  onDeleteDay: (dayKey: string) => void;
+  onDeleteMonth: (monthPrefix: string) => void;
 }) {
   const analyze = useServerFn(analyzeMeal);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -409,7 +413,12 @@ export function Dashboard({
 
           {/* ============ السجل والأرشيف ============ */}
           <TabsContent value="history" className="mt-5">
-            <HistoryView archive={archive} profile={profile} />
+            <HistoryView
+              archive={archive}
+              profile={profile}
+              onDeleteDay={onDeleteDay}
+              onDeleteMonth={onDeleteMonth}
+            />
           </TabsContent>
 
           {/* ============ الملف الشخصي ============ */}

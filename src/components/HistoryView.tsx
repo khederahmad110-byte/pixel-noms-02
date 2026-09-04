@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   MONTH_LABELS,
@@ -44,9 +44,13 @@ function TotalsCard({
 export function HistoryView({
   archive,
   profile,
+  onDeleteDay,
+  onDeleteMonth,
 }: {
   archive: DayArchive;
   profile: Profile;
+  onDeleteDay: (dayKey: string) => void;
+  onDeleteMonth: (monthPrefix: string) => void;
 }) {
   const today = new Date();
   const [cursor, setCursor] = useState(
@@ -94,6 +98,8 @@ export function HistoryView({
 
   const selectedEntries = archive[selected] ?? [];
   const selectedTotals = sumEntries(selectedEntries);
+
+  const monthPrefix = `${cursor.getFullYear()}-${`${cursor.getMonth() + 1}`.padStart(2, "0")}`;
 
   return (
     <div className="space-y-5">
@@ -183,6 +189,38 @@ export function HistoryView({
             totals={monthTotals}
             days={monthKeys.length}
           />
+        </div>
+        <div className="mt-3 grid gap-2 border-t border-border pt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="justify-start gap-2 text-destructive hover:bg-destructive/10"
+            disabled={!totalsByDay[selected]}
+            onClick={() => {
+              if (window.confirm(`حذف سجل يوم ${selected} نهائياً؟`))
+                onDeleteDay(selected);
+            }}
+          >
+            <Trash2 className="size-4" />
+            حذف سجل اليوم المحدد ({new Date(`${selected}T00:00:00`).toLocaleDateString("ar-EG")})
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="justify-start gap-2 text-destructive hover:bg-destructive/10"
+            disabled={monthKeys.length === 0}
+            onClick={() => {
+              if (
+                window.confirm(
+                  `حذف جميع سجلات شهر ${MONTH_LABELS[cursor.getMonth()]} ${cursor.getFullYear()} (${monthKeys.length} يوم) نهائياً؟`,
+                )
+              )
+                onDeleteMonth(monthPrefix);
+            }}
+          >
+            <Trash2 className="size-4" />
+            حذف سجل شهر {MONTH_LABELS[cursor.getMonth()]} بالكامل
+          </Button>
         </div>
       </section>
 
