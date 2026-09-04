@@ -257,27 +257,6 @@ export function Dashboard({
             </div>
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
-              <h2 className="font-semibold">📚 لماذا نتابع هذه العناصر؟</h2>
-              <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
-                {MACRO_NOTES.map((n) => (
-                  <li key={n.key} className="rounded-xl bg-secondary p-3">
-                    <strong className="text-secondary-foreground">
-                      {n.emoji} {n.title}:
-                    </strong>{" "}
-                    <span className="text-secondary-foreground/80">{n.note}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant="outline"
-                className="mt-3 w-full"
-                onClick={speakSummary}
-              >
-                <Volume2 className="size-4" /> استمع لملخصك الغذائي
-              </Button>
-            </section>
-
-            <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">نوع الوجبة</h2>
               <div className="mt-3 grid grid-cols-4 gap-2">
                 {MEAL_TYPES.map((t) => (
@@ -328,89 +307,6 @@ export function Dashboard({
                 )}
               </Button>
             </section>
-
-            <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
-              <h2 className="font-semibold">🍱 الأغذية</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                اضغط على أي غذاء ليُحفظ فوراً في سجل اليوم بسعراته وماكروزه تحت وجبة «
-                {mealType}».
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {QUICK_MEALS.map((m) => (
-                  <button
-                    key={m.label}
-                    type="button"
-                    onClick={() => {
-                      onAdd({
-                        label: `${m.emoji} ${m.label}`,
-                        type: mealType,
-                        calories: m.calories,
-                        protein: m.protein,
-                        carbs: m.carbs,
-                        fats: m.fats,
-                      });
-                      toast.success(`أُضيفت ${m.label} إلى سجل اليوم`);
-                    }}
-                    className="rounded-2xl border border-border bg-secondary p-3 text-right text-sm font-medium text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <span className="block text-lg">{m.emoji}</span>
-                    {m.label}
-                    <span className="mt-1 block text-xs text-muted-foreground">
-                      🔥 {m.calories} · 🥩 {m.protein}غ · 🍞 {m.carbs}غ · 🥑 {m.fats}غ
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {templates.length > 0 && (
-                <>
-                  <h3 className="mt-5 text-sm font-semibold">⭐ وجباتي المحفوظة</h3>
-                  <ul className="mt-2 space-y-2">
-                    {templates.map((t) => (
-                      <li
-                        key={t.id}
-                        className="flex items-center justify-between gap-2 rounded-2xl border border-border bg-secondary p-3"
-                      >
-                        <button
-                          type="button"
-                          className="flex-1 text-right"
-                          onClick={() => {
-                            onAdd({
-                              label: `⭐ ${t.label}`,
-                              type: mealType,
-                              calories: t.calories,
-                              protein: t.protein,
-                              carbs: t.carbs,
-                              fats: t.fats,
-                              micros: t.micros,
-                            });
-                            toast.success(`أُضيفت ${t.label} إلى سجل اليوم`);
-                          }}
-                        >
-                          <span className="text-sm font-medium text-secondary-foreground">
-                            {t.label}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-muted-foreground">
-                            🔥 {t.calories} · 🥩 {t.protein}غ · 🍞 {t.carbs}غ · 🥑{" "}
-                            {t.fats}غ
-                            {t.uses > 0 ? ` · استُخدمت ${t.uses} مرة` : ""}
-                          </span>
-                        </button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label="حذف القالب"
-                          onClick={() => onDeleteTemplate(t.id)}
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">📸 تحليل وجبة بالصورة (ذكاء اصطناعي)</h2>
