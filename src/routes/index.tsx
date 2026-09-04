@@ -181,6 +181,27 @@ function Index() {
         ])
       }
       onRemove={(id) => setEntries((prev) => prev.filter((e) => e.id !== id))}
+      onDeleteDay={(dayKey) => {
+        setArchive((prev) => {
+          const next = { ...prev };
+          delete next[dayKey];
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(next));
+          return next;
+        });
+        if (dayKey === todayKey()) setEntries([]);
+        toast.success("تم حذف سجل اليوم");
+      }}
+      onDeleteMonth={(monthPrefix) => {
+        setArchive((prev) => {
+          const next: DayArchive = {};
+          for (const [k, v] of Object.entries(prev))
+            if (!k.startsWith(monthPrefix)) next[k] = v;
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(next));
+          return next;
+        });
+        if (todayKey().startsWith(monthPrefix)) setEntries([]);
+        toast.success("تم حذف سجل الشهر بالكامل");
+      }}
       onSaveTemplate={(t) =>
         setTemplates((prev) => {
           const key = t.label.trim();
