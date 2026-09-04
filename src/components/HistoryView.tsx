@@ -100,7 +100,6 @@ export function HistoryView({
   const selectedTotals = sumEntries(selectedEntries);
 
   const monthPrefix = `${cursor.getFullYear()}-${`${cursor.getMonth() + 1}`.padStart(2, "0")}`;
-  const todayKeyStr = dayKeyOf(today);
 
   return (
     <div className="space-y-5">
