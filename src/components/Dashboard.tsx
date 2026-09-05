@@ -169,7 +169,6 @@ export function Dashboard({
     }
   };
 
-  const lowIntake = consumed.calories < profile.targetCal * 0.5;
   const overCal = consumed.calories > profile.targetCal * 1.1;
 
   const speakSummary = () => {
