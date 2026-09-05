@@ -268,6 +268,37 @@ export function Dashboard({
               </Button>
             </section>
 
+            <div className="grid gap-3">
+              <StatBar
+                label="🔥 السعرات"
+                value={consumed.calories}
+                target={profile.targetCal}
+                unit="سعرة"
+                tone="calories"
+              />
+              <StatBar
+                label="🥩 البروتين"
+                value={consumed.protein}
+                target={profile.targetProt}
+                unit="غ"
+                tone="protein"
+              />
+              <StatBar
+                label="🍞 الكربوهيدرات"
+                value={consumed.carbs}
+                target={profile.targetCarbs}
+                unit="غ"
+                tone="carbs"
+              />
+              <StatBar
+                label="🥑 الدهون"
+                value={consumed.fats}
+                target={profile.targetFats}
+                unit="غ"
+                tone="fats"
+              />
+            </div>
+
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">📸 تحليل وجبة بالصورة (ذكاء اصطناعي)</h2>
               <p className="mt-1 text-xs text-muted-foreground">
