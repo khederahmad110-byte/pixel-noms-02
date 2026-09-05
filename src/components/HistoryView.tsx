@@ -232,13 +232,16 @@ export function HistoryView({
 
       <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
         <h2 className="font-semibold">
-          سجل يوم {new Date(`${selected}T00:00:00`).toLocaleDateString("ar-EG")}
+          سجل يوم{" "}
+          <span className="num">
+            {new Date(`${selected}T00:00:00`).toLocaleDateString("ar-EG")}
+          </span>
         </h2>
         {selectedEntries.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">لا توجد وجبات مسجّلة بهذا اليوم.</p>
         ) : (
           <>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="num mt-1 text-xs text-muted-foreground">
               🔥 {Math.round(selectedTotals.calories)} · 🥩{" "}
               {Math.round(selectedTotals.protein)}غ · 🍞 {Math.round(selectedTotals.carbs)}غ
               · 🥑 {Math.round(selectedTotals.fats)}غ
@@ -252,7 +255,7 @@ export function HistoryView({
                     </span>
                     {e.label}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="num text-xs text-muted-foreground">
                     🔥 {e.calories} · 🥩 {e.protein}غ · 🍞 {e.carbs}غ · 🥑 {e.fats}غ
                   </p>
                 </li>
