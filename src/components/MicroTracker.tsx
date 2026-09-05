@@ -61,8 +61,10 @@ export function MicroTracker({
       <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
         <h2 className="font-semibold">💊 تغطية الفيتامينات والمعادن اليوم</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          الحاجة اليومية (DRI) محسوبة حسب جنسك ({profile.gender === "male" ? "ذكر" : "أنثى"})
-          وعمرك ({profile.age} سنة). اضغط أي عنصر لرؤية فائدته ومصادره.
+          الحاجة اليومية <span className="num">(DRI)</span> محسوبة حسب جنسك (
+          {profile.gender === "male" ? "ذكر" : "أنثى"}) وعمرك (
+          <span className="num">{profile.age}</span> سنة). اضغط أي عنصر لرؤية فائدته
+          ومصادره.
         </p>
         <Button className="mt-3 w-full" onClick={alertDeficiency}>
           <BellRing className="size-4" /> التنبيه الذكي للنقص
