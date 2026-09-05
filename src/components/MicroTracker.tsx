@@ -87,7 +87,7 @@ export function MicroTracker({
                   <span className="text-sm font-semibold">
                     {info.emoji} {info.label}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="num text-xs text-muted-foreground">
                     <strong className={r.pct < 70 ? "text-destructive" : "text-success"}>
                       {Math.round(r.value * 10) / 10}
                     </strong>{" "}
