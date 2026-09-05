@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Dashboard } from "@/components/Dashboard";
 import { Onboarding } from "@/components/Onboarding";
 import { MEAL_REMINDERS, announce } from "@/lib/notify";
