@@ -22,10 +22,10 @@ export function StatBar({
   const remaining = Math.max(0, target - value);
   const t = TONES[tone];
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+    <div className="rounded-2xl border border-border bg-card p-4 text-right shadow-card">
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-semibold text-foreground">{label}</span>
-        <span className="text-sm text-muted-foreground">
+        <span className="num text-sm text-muted-foreground">
           <strong className={t.text}>{Math.round(value)}</strong> / {target} {unit}
         </span>
       </div>
@@ -36,9 +36,15 @@ export function StatBar({
         />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        {remaining > 0
-          ? `متبقٍ ${Math.round(remaining)} ${unit} (${pct}%)`
-          : `تم تحقيق الهدف 🎉 (${pct}%)`}
+        {remaining > 0 ? (
+          <>
+            متبقٍ <span className="num">{`${Math.round(remaining)} ${unit} (${pct}%)`}</span>
+          </>
+        ) : (
+          <>
+            تم تحقيق الهدف 🎉 <span className="num">{`(${pct}%)`}</span>
+          </>
+        )}
       </p>
     </div>
   );

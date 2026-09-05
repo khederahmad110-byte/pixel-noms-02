@@ -57,12 +57,14 @@ export function MicroTracker({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-right">
       <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
         <h2 className="font-semibold">💊 تغطية الفيتامينات والمعادن اليوم</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          الحاجة اليومية (DRI) محسوبة حسب جنسك ({profile.gender === "male" ? "ذكر" : "أنثى"})
-          وعمرك ({profile.age} سنة). اضغط أي عنصر لرؤية فائدته ومصادره.
+          الحاجة اليومية <span className="num">(DRI)</span> محسوبة حسب جنسك (
+          {profile.gender === "male" ? "ذكر" : "أنثى"}) وعمرك (
+          <span className="num">{profile.age}</span> سنة). اضغط أي عنصر لرؤية فائدته
+          ومصادره.
         </p>
         <Button className="mt-3 w-full" onClick={alertDeficiency}>
           <BellRing className="size-4" /> التنبيه الذكي للنقص
@@ -87,7 +89,7 @@ export function MicroTracker({
                   <span className="text-sm font-semibold">
                     {info.emoji} {info.label}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="num text-xs text-muted-foreground">
                     <strong className={r.pct < 70 ? "text-destructive" : "text-success"}>
                       {Math.round(r.value * 10) / 10}
                     </strong>{" "}

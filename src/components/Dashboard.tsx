@@ -188,13 +188,16 @@ export function Dashboard({
 
   return (
     <div className="min-h-screen bg-background px-4 pb-16 pt-6">
-      <div className="mx-auto w-full max-w-md space-y-5">
+      <div className="mx-auto w-full max-w-md space-y-5 text-right">
         <header className="bg-hero rounded-3xl p-5 text-primary-foreground shadow-card">
           <p className="text-sm opacity-90">أهلاً بك 👋</p>
           <h1 className="font-display text-2xl font-bold">{profile.name}</h1>
           <p className="mt-2 text-sm opacity-90">
-            {GOAL_LABELS[profile.goal]} — {profile.targetCal} سعرة · {profile.targetProt}غ
-            بروتين · {profile.targetCarbs}غ كارب · {profile.targetFats}غ دهون
+            {GOAL_LABELS[profile.goal]} —{" "}
+            <span className="num">
+              {profile.targetCal} سعرة · {profile.targetProt}غ بروتين ·{" "}
+              {profile.targetCarbs}غ كارب · {profile.targetFats}غ دهون
+            </span>
           </p>
         </header>
 
@@ -357,7 +360,7 @@ export function Dashboard({
                           </span>
                           {e.label}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="num text-xs text-muted-foreground">
                           🔥 {e.calories} · 🥩 {e.protein}غ · 🍞 {e.carbs}غ · 🥑 {e.fats}غ
                         </p>
                       </div>
@@ -415,7 +418,7 @@ export function Dashboard({
           <TabsContent value="profile" className="mt-5 space-y-5">
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">خطتي الحالية</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="num mt-2 text-sm text-muted-foreground">
                 🔥 {profile.targetCal} سعرة · 🥩 {profile.targetProt}غ · 🍞{" "}
                 {profile.targetCarbs}غ · 🥑 {profile.targetFats}غ
               </p>
@@ -434,6 +437,7 @@ export function Dashboard({
               <div className="mt-3 flex gap-2">
                 <Input
                   type="number"
+                  inputMode="decimal"
                   value={newWeight}
                   onChange={(e) => setNewWeight(e.target.value)}
                   placeholder="الوزن بالكيلوغرام"
@@ -459,8 +463,10 @@ export function Dashboard({
                     const diff = prev ? w.weight - prev.weight : 0;
                     return (
                       <li key={w.id} className="flex justify-between">
-                        <span>{new Date(w.at).toLocaleDateString("ar-EG")}</span>
-                        <span>
+                        <span className="num">
+                          {new Date(w.at).toLocaleDateString("ar-EG")}
+                        </span>
+                        <span className="num">
                           {w.weight} كغ{" "}
                           {prev ? (
                             <strong className={diff >= 0 ? "text-success" : "text-fats"}>

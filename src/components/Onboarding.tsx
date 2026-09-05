@@ -32,7 +32,7 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
 
   return (
     <div className="min-h-screen bg-background px-4 py-8">
-      <div className="mx-auto w-full max-w-md">
+      <div className="mx-auto w-full max-w-md text-right">
         <div className="bg-hero mb-6 rounded-3xl p-6 text-primary-foreground shadow-card">
           <h1 className="font-display text-2xl font-bold">رفيق التغذية الذكي 🥗</h1>
           <p className="mt-1 text-sm opacity-90">

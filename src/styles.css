@@ -169,3 +169,35 @@
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }
+
+/* ===== RTL: اتجاه ومحاذاة عربية موحّدة ===== */
+@layer base {
+  html {
+    direction: rtl;
+  }
+
+  body {
+    text-align: right;
+  }
+
+  input,
+  textarea,
+  select {
+    text-align: right;
+  }
+
+  input[type="number"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="url"] {
+    direction: ltr;
+    text-align: right;
+  }
+}
+
+/* عزل الأرقام والوحدات والرموز حتى لا ينعكس ترتيبها داخل النص العربي */
+@utility num {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
