@@ -209,52 +209,12 @@ export function Dashboard({
 
           {/* ============ اليوم ============ */}
           <TabsContent value="today" className="mt-5 space-y-5">
-            {lowIntake && (
-              <div className="flex items-start gap-2 rounded-2xl border border-accent bg-accent/20 p-3 text-xs text-accent-foreground">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                <span>
-                  تنبيه: سعراتك اليومية منخفضة ولم تصل للحد المطلوب، تأكد من تناول وجباتك
-                  لدعم مجهودك!
-                </span>
-              </div>
-            )}
             {overCal && (
               <div className="flex items-start gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                 <span>تجاوزت هدف السعرات اليومي، خفّف الوجبات القادمة ⚖️</span>
               </div>
             )}
-
-            <div className="grid gap-3">
-              <StatBar
-                label="🔥 السعرات"
-                value={consumed.calories}
-                target={profile.targetCal}
-                unit="سعرة"
-                tone="calories"
-              />
-              <StatBar
-                label="🥩 البروتين"
-                value={consumed.protein}
-                target={profile.targetProt}
-                unit="غ"
-                tone="protein"
-              />
-              <StatBar
-                label="🍞 الكربوهيدرات"
-                value={consumed.carbs}
-                target={profile.targetCarbs}
-                unit="غ"
-                tone="carbs"
-              />
-              <StatBar
-                label="🥑 الدهون"
-                value={consumed.fats}
-                target={profile.targetFats}
-                unit="غ"
-                tone="fats"
-              />
-            </div>
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">نوع الوجبة</h2>
