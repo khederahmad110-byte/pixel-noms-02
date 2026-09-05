@@ -25,16 +25,19 @@ function TotalsCard({
   days?: number;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-secondary p-3">
+    <div className="rounded-2xl border border-border bg-secondary p-3 text-right">
       <p className="text-sm font-semibold text-secondary-foreground">{title}</p>
       {subtitle ? <p className="text-xs text-muted-foreground">{subtitle}</p> : null}
-      <p className="mt-1 text-xs text-secondary-foreground/80">
+      <p className="num mt-1 text-xs text-secondary-foreground/80">
         🔥 {Math.round(totals.calories)} · 🥩 {Math.round(totals.protein)}غ · 🍞{" "}
         {Math.round(totals.carbs)}غ · 🥑 {Math.round(totals.fats)}غ
       </p>
       {days && days > 0 ? (
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          متوسط يومي: {Math.round(totals.calories / days)} سعرة على {days} يوم مسجّل
+          متوسط يومي:{" "}
+          <span className="num">
+            {Math.round(totals.calories / days)} سعرة على {days} يوم مسجّل
+          </span>
         </p>
       ) : null}
     </div>
@@ -102,7 +105,7 @@ export function HistoryView({
   const monthPrefix = `${cursor.getFullYear()}-${`${cursor.getMonth() + 1}`.padStart(2, "0")}`;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-right">
       <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
         <div className="flex items-center justify-between">
           <Button
@@ -115,7 +118,7 @@ export function HistoryView({
           >
             <ChevronRight className="size-4" />
           </Button>
-          <h2 className="font-semibold">
+          <h2 className="num font-semibold">
             {MONTH_LABELS[cursor.getMonth()]} {cursor.getFullYear()}
           </h2>
           <Button
@@ -202,7 +205,10 @@ export function HistoryView({
             }}
           >
             <Trash2 className="size-4" />
-            حذف سجل اليوم المحدد ({new Date(`${selected}T00:00:00`).toLocaleDateString("ar-EG")})
+            حذف سجل اليوم المحدد{" "}
+            <span className="num">
+              ({new Date(`${selected}T00:00:00`).toLocaleDateString("ar-EG")})
+            </span>
           </Button>
           <Button
             variant="outline"
