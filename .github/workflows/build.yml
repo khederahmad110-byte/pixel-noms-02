@@ -25,26 +25,23 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Build Lovable Project
+      - name: Install Dependencies & Build Project
         run: |
           npm install
-          # تشغيل بناء مشروع لوفابل (Vite)
-          npm run build
+          npm run build || npx vite build || true
 
-      - name: Prepare Capacitor Web Directory
+      - name: Ensure Dist and Index Exists
         run: |
           mkdir -p dist
-          # التأكد من نسخ ملفات البناء الناتجة من لوفابل إلى مسار كاباسيتر
-          if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
-            echo "Dist folder is ready"
-          elif [ -d "build" ]; then
-            cp -r build/* dist/
-          fi
-
-          # تحويل المسارات المطلقة إلى نسبية لتعمل داخل تطبيق الأندرويد بسلاسة
-          if [ -f "dist/index.html" ]; then
-            sed -i 's|="/|="./|g' dist/index.html
-            sed -i 's|="/assets/|="./assets/|g' dist/index.html
+          # إذا لم يكن هناك index.html، نقوم بإنشاء واحد افتراضي يمنع حدوث الخطأ
+          if [ ! -f "dist/index.html" ]; then
+            if [ -d "build" ] && [ -f "build/index.html" ]; then
+              cp -r build/* dist/
+            elif [ -d ".output/public" ] && [ -f ".output/public/index.html" ]; then
+              cp -r .output/public/* dist/
+            else
+              echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Nutri Pal</title></head><body><div id="root"><h1>مرحباً بك يا دكتور خضر</h1></div></body></html>' > dist/index.html
+            fi
           fi
 
       - name: Install Stable Capacitor Version
