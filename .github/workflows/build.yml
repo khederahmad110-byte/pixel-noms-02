@@ -14,11 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -34,33 +34,20 @@ jobs:
             echo "<HTML><BODY>Nutri Pal App</BODY></HTML>" > dist/index.html
           fi
 
-      - name: Create Capacitor Config
+      - name: Install Ionic CLI & Capacitor
         run: |
-          echo '{
-            "appId": "com.nutripal.app",
-            "appName": "Nutri Pal",
-            "webDir": "dist",
-            "bundledWebRuntime": false
-          }' > capacitor.config.json
-
-      - name: Install Capacitor & Add Android
-        run: |
+          npm install -g @ionic/cli
           npm install @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Init and Add Android Platform Cleanly
+        run: |
+          npx cap init "Nutri Pal" "com.nutripal.app" --web-dir dist --force || true
           rm -rf android
           npx cap add android
 
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Force Fix Kotlin Version in Project
+      - name: Update Capacitor Config for Android
         run: |
-          cd android
-          # تحديث أو حقن إصدار كوتلين الحديث المتوافق في ملف الإعدادات الرئيسي
-          if grep -q "ext.kotlinVersion" build.gradle; then
-            sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" build.gradle
-          else
-            sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle
-          fi
+          npx cap sync android
 
       - name: Grant execute permission for gradlew
         run: |
