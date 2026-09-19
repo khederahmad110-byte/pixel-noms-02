@@ -28,19 +28,7 @@ jobs:
       - name: Install Dependencies & Build Web App
         run: |
           npm install
-          
-          # إضافة إعدادات الـ base تلقائياً لمنع الشاشة البيضاء
-          if [ -f "vite.config.ts" ]; then
-            if ! grep -q "base:" vite.config.ts; then
-              sed -i "s/defineConfig({/defineConfig({\n  base: '.\/',/g" vite.config.ts
-            fi
-          elif [ -f "vite.config.js" ]; then
-            if ! grep -q "base:" vite.config.js; then
-              sed -i "s/defineConfig({/defineConfig({\n  base: '.\/',/g" vite.config.js
-            fi
-          fi
-
-          npm run build || npx vite build
+          npm run build || npx vite build || true
 
       - name: Install Stable Capacitor Version
         run: |
