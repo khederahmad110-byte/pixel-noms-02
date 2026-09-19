@@ -25,16 +25,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Build Web
-        run: |
-          npm install
-          npm run build
+      - name: Install Dependencies
+        run: npm install
 
       - name: Initialize Capacitor & Add Android Platform
         run: |
           npm install @capacitor/cli @capacitor/core @capacitor/android
           
-          # إنشاء ملف إعدادات كاباسيتر يدوياً لضمان توجيهه إلى مجلد dist الصحيح
+          # إنشاء ملف الإعدادات
           echo '{
             "appId": "com.nutripal.app",
             "appName": "Nutri Pal",
@@ -42,8 +40,16 @@ jobs:
             "bundledWebRuntime": false
           }' > capacitor.config.json
 
-          npx cap add android
-          npx cap sync android
+          # إضافة منصة الأندرويد إذا لم تكن موجودة
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
 
       - name: Grant execute permission for gradlew
         run: |
