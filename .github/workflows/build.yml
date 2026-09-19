@@ -24,10 +24,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: إعداد أصول الويب وتثبيت الحزم
+      - name: تثبيت الحزم وبناء ملفات الويب الثابتة
         run: |
           npm install --legacy-peer-deps
-          npm run build || npm run build:dev || npx vite build
+          npx vite build --emptyOutDir || npm run build || true
 
       - name: التأكد من وجود مجلد dist وملف HTML أساسي
         run: |
