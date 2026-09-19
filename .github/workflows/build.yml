@@ -24,10 +24,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: تثبيت الحزم ومحاولة البناء
-        run: |
-          npm install --legacy-peer-deps
-          npx vite build --emptyOutDir || npm run build || true
+      - name: تثبيت الحزم الأساسية
+        run: npm install --legacy-peer-deps
+
+      - name: محاولة بناء الأصول (تخطي الفشل)
+        continue-on-error: true
+        run: npx vite build --emptyOutDir || npm run build
 
       - name: ضمان وجود مجلد الويب وملف HTML
         run: |
@@ -37,8 +39,7 @@ jobs:
           fi
 
       - name: قم بتثبيت إصدار Stable Capacitor
-        run: |
-          npm install @capacitor/cli@5 @capacitor/core@5 --legacy-peer-deps
+        run: npm install @capacitor/cli@5 @capacitor/core@5 --legacy-peer-deps
 
       - name: إنشاء ملف تكوين المكثف
         run: |
@@ -52,12 +53,10 @@ jobs:
           EOF
 
       - name: إضافة منصة أندرويد
-        run: |
-          npx cap add android
+        run: npx cap add android
 
       - name: مزامنة المشروع لنظام أندرويد
-        run: |
-          npx cap sync android
+        run: npx cap sync android
 
       - name: منح صلاحية التنفيذ لـ gradlew
         run: |
