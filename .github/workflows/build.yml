@@ -25,14 +25,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Build Web
+      - name: Install Dependencies & Build Web App
         run: |
           npm install
           npm run build
-          mkdir -p dist
-          if [ ! -f "dist/index.html" ]; then
-            echo "<HTML><BODY>Nutri Pal App</BODY></HTML>" > dist/index.html
-          fi
 
       - name: Install Stable Capacitor Version
         run: |
@@ -70,5 +66,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: nutripal-app
           path: android/app/build/outputs/apk/debug/app-debug.apk
