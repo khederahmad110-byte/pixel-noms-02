@@ -27,7 +27,7 @@ jobs:
       - name: إعداد أصول الويب وتثبيت الحزم
         run: |
           npm install --legacy-peer-deps
-          npm run build || npx vite build
+          npx vite build
 
       - name: التأكد من وجود مجلد dist وملف HTML أساسي
         run: |
