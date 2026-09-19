@@ -52,10 +52,15 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Fix Kotlin & Gradle Version Compatibility
+      - name: Force Fix Kotlin Version in Project
         run: |
           cd android
-          sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.0'/g" build.gradle || true
+          # تحديث أو حقن إصدار كوتلين الحديث المتوافق في ملف الإعدادات الرئيسي
+          if grep -q "ext.kotlinVersion" build.gradle; then
+            sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" build.gradle
+          else
+            sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle
+          fi
 
       - name: Grant execute permission for gradlew
         run: |
