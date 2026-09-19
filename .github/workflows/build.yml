@@ -46,7 +46,8 @@ jobs:
       - name: Install Capacitor & Add Android
         run: |
           npm install @capacitor/cli @capacitor/core @capacitor/android
-          npx cap add android --force
+          rm -rf android
+          npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
@@ -54,7 +55,6 @@ jobs:
       - name: Fix Kotlin & Gradle Version Compatibility
         run: |
           cd android
-          # تحديث إعدادات Gradle للتوافق مع جافا 21 وكوتلين الحديثة
           sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.0'/g" build.gradle || true
 
       - name: Grant execute permission for gradlew
