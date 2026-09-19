@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-  
     runs-on: ubuntu-latest
 
     steps:
@@ -33,20 +32,8 @@ jobs:
 
       - name: Initialize Capacitor & Add Android Platform
         run: |
-          # تثبيت أدوات كاباسيتر إذا لم تكن موجودة
           npm install @capacitor/cli @capacitor/core @capacitor/android
-          
-          # تهيئة كاباسيتر إذا لم يتواجد ملف الإعدادات
-          if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
-            npx cap init AppName com.example.app --web-dir dist
-          fi
-
-          # إضافة منصة الأندرويد إذا لم يكن المجلد موجوداً
-          if [ ! -d "android" ]; then
-            npx cap add android
-          fi
-          
-          # مزامنة الملفات
+          npx cap add android
           npx cap sync android
 
       - name: Grant execute permission for gradlew
