@@ -57,17 +57,21 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Force Fix Kotlin Version Globally
+      - name: Fix Kotlin & Gradle Dependencies Completely
         run: |
           cd android
-          # البحث عن تعريف إصدار كوتلين وتحديثه أو إضافته في ملف build.gradle الرئيسي
-          if grep -q "ext.kotlinVersion" build.gradle; then
-            sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" build.gradle
-          else
-            sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle
+          # تحديث متغيرات الكوتلين في ملف variables.gradle إن وجد
+          if [ -f "variables.gradle" ]; then
+            sed -i "s/kotlinVersion =.*/kotlinVersion = '1.9.24'/g" variables.gradle || true
           fi
-          # التأكد من تحديثه أيضاً في حال وجوده ضمن block آخر
-          sed -i "s/kotlin_version =.*/kotlin_version = '1.9.24'/g" build.gradle || true
+          # تحديث في build.gradle الرئيسي
+          if [ -f "build.gradle" ]; then
+            sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" build.gradle || true
+          fi
+          # إضافة أو تعديل كوتلين في بداية ملف build.gradle الرئيسي إذا لم يكن موجوداً
+          if ! grep -q "kotlinVersion" build.gradle; then
+            sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle || true
+          fi
 
       - name: Grant execute permission for gradlew
         run: |
