@@ -14,11 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -34,9 +34,9 @@ jobs:
             echo "<HTML><BODY>Nutri Pal App</BODY></HTML>" > dist/index.html
           fi
 
-      - name: Install Capacitor CLI & Core
+      - name: Install Stable Capacitor Version
         run: |
-          npm install @capacitor/cli @capacitor/core @capacitor/android
+          npm install @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5
 
       - name: Create Capacitor Config File
         run: |
@@ -57,21 +57,6 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Force Overwrite Kotlin Version in All Gradle Files
-        run: |
-          cd android
-          # البحث عن أي استخدام لإصدار كوتلين القديم 1.6.21 أو ما شابه واستبداله بالنسخة الحديثة 1.9.24
-          find . -name "*.gradle" -type f -exec sed -i "s/1.6.21/1.9.24/g" {} +
-          find . -name "*.gradle" -type f -exec sed -i "s/kotlin_version =.*/kotlin_version = '1.9.24'/g" {} +
-          find . -name "*.gradle" -type f -exec sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" {} +
-          
-          # إضافة إصدار كوتلين إجبارياً في ملف build.gradle الرئيسي إذا لم يكن موجوداً
-          if [ -f "build.gradle" ]; then
-            if ! grep -q "kotlinVersion" build.gradle; then
-              sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle || true
-            fi
-          fi
-
       - name: Grant execute permission for gradlew
         run: |
           cd android
@@ -87,4 +72,3 @@ jobs:
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          
