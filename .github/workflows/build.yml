@@ -30,11 +30,35 @@ jobs:
           npm install
           npm run build || npx vite build || true
 
-      - name: Force Fully Populate Dist for Capacitor
+      - name: Prepare Real Project Files for Capacitor
         run: |
+          # التأكد من وجود مجلد dist نظيف
+          rm -rf dist
           mkdir -p dist
+
+          # التحقق من مكان وجود ملفات المشروع الحقيقية (مثل index.html الأصلي للمشروع)
+          # إذا قام النمط بالبناء في مجلد مثل dist أو build أو وجدناها في الجذر
+          if [ -f "dist/index.html" ] && ! grep -q "مرحباً بك يا دكتور خصر" dist/index.html; then
+            echo "Real dist found from build"
+          elif [ -d "build" ] && [ -f "build/index.html" ]; then
+            cp -r build/* dist/
+          else
+            # نسخ جميع ملفات المشروع ما عدا المجلدات النظامية والملفات غير الضرورية إلى dist
+            find . -maxdepth 1 -not -path '.' -not -path './.git' -not -path './node_modules' -not -path './android' -not -path './dist' -exec cp -r {} dist/ \;
+          fi
+
+          # التحقق من وجود index.html، وإذا لم يوجد نأخذ أول ملف index.html صالح من المستودع
           if [ ! -f "dist/index.html" ]; then
-            echo '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Nutri Pal</title><style>body{font-family:Tahoma,sans-serif;background-color:#f4f6f9;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;height:100vh;text-align:center}.card{background:white;padding:30px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);max-width:400px;width:100%}h2{color:#2c3e50;margin-bottom:10px}p{color:#7f8c8d}.btn{display:inline-block;margin-top:20px;background:#27ae60;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold}</style></head><body><div class="card"><h2>Nutri Pal</h2><p>مرحباً بك يا دكتور خضر. تطبيقك يعمل الآن بنجاح تام!</p><a href="#" class="btn" onclick="location.reload()">تحديث التطبيق</a></div></body></html>' > dist/index.html
+            REAL_INDEX=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" -not -path "./dist/*" | head -n 1)
+            if [ -n "$REAL_INDEX" ]; then
+              cp -r "$(dirname "$REAL_INDEX")"/* dist/
+            fi
+          fi
+
+          # تعديل مسارات الملفات لتتوافق مع تشغيل الأندرويد المحلي
+          if [ -f "dist/index.html" ]; then
+            sed -i 's|="/|="./|g' dist/index.html || true
+            sed -i 's|="/assets/|="./assets/|g' dist/index.html || true
           fi
 
       - name: Install Stable Capacitor Version
