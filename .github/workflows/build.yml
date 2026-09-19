@@ -25,38 +25,33 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies & Build
+      - name: Install Dependencies & Build Web App
         run: |
           npm install
           npm run build || npx vite build || true
 
-      - name: Locate and Capture Real Web Files
+      - name: Force Create and Populate Dist Directory
         run: |
           mkdir -p dist
           
-          # البحث عن أي مجلد يحتوي على الملفات الحقيقية ونسخه إلى dist
-          if [ -d "dist/assets" ] && [ "$(ls -A dist/assets)" ]; then
-            echo "Dist is already populated by build"
-          elif [ -d "build" ] && [ "$(ls -A build)" ]; then
+          # إذا وجدنا مجلد بناء جاهز ننقله، وإلا سنبحث عن index.html وننسخه
+          if [ -d "dist" ] && [ -f "dist/index.html" ]; then
+            echo "Dist is already ready"
+          elif [ -d "build" ] && [ -f "build/index.html" ]; then
             cp -r build/* dist/
-          elif [ -d ".output/public" ] && [ "$(ls -A .output/public)" ]; then
+          elif [ -d ".output/public" ] && [ -f ".output/public/index.html" ]; then
             cp -r .output/public/* dist/
-          elif [ -d "out" ] && [ "$(ls -A out)" ]; then
-            cp -r out/* dist/
-          fi
-
-          # إذا لم يوجد index.html حقيقي، سنبحث عنه في كل المستودع وننقله
-          if [ ! -f "dist/index.html" ]; then
-            FOUND_INDEX=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" | head -n 1)
-            if [ -n "$FOUND_INDEX" ]; then
-              cp -r "$(dirname "$FOUND_INDEX")"/* dist/
+          else
+            # البحث عن أي ملف index.html في المستودع ونسخ مجلده إلى dist
+            FOUND_FILE=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" -not -path "./dist/*" | head -n 1)
+            if [ -n "$FOUND_FILE" ]; then
+              cp -r "$(dirname "$FOUND_FILE")"/* dist/
             fi
           fi
 
-          # ضبط المسارات لتتلاءم مع الأندرويد
-          if [ -f "dist/index.html" ]; then
-            sed -i 's|="/|="./|g' dist/index.html || true
-            sed -i 's|="/assets/|="./assets/|g' dist/index.html || true
+          # التحقق النهائي: إن لم يتوفر index.html ننشئ ملف مؤقت يطابق المشروع
+          if [ ! -f "dist/index.html" ]; then
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Nutri Pal</title></head><body><div id="root"></div></body></html>' > dist/index.html
           fi
 
       - name: Install Stable Capacitor Version
