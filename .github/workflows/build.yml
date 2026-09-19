@@ -28,25 +28,19 @@ jobs:
       - name: Install Dependencies & Build Web App
         run: |
           npm install
-          npm run build || npx vite build || true
-
-      - name: Ensure Dist Directory and Index File Exist
-        run: |
-          mkdir -p dist
           
-          # إذا لم ينتج عن البناء ملف index.html، ننشئ ملفاً صالحاً يمنع فشل الكاباسيتر
-          if [ ! -f "dist/index.html" ]; then
-            if [ -d "build" ] && [ -f "build/index.html" ]; then
-              cp -r build/* dist/
-            else
-              # نقل محتويات المشروع لضمان وجود الواجهات
-              cp -r src dist/ 2>/dev/null || true
-              echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Nutri Pal</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>' > dist/index.html
+          # إضافة إعدادات الـ base تلقائياً لمنع الشاشة البيضاء
+          if [ -f "vite.config.ts" ]; then
+            if ! grep -q "base:" vite.config.ts; then
+              sed -i "s/defineConfig({/defineConfig({\n  base: '.\/',/g" vite.config.ts
+            fi
+          elif [ -f "vite.config.js" ]; then
+            if ! grep -q "base:" vite.config.js; then
+              sed -i "s/defineConfig({/defineConfig({\n  base: '.\/',/g" vite.config.js
             fi
           fi
 
-          # ضبط مسارات الـ HTML لتتلاءم مع الأندرويد
-          sed -i 's|="/|="./|g' dist/index.html || true
+          npm run build || npx vite build
 
       - name: Install Stable Capacitor Version
         run: |
@@ -63,9 +57,8 @@ jobs:
           }
           EOF
 
-      - name: Add Android Platform Cleanly
+      - name: Add Android Platform
         run: |
-          rm -rf android
           npx cap add android
 
       - name: Sync Capacitor
