@@ -30,28 +30,28 @@ jobs:
           npm install
           npm run build || npx vite build || true
 
-      - name: Force Create and Populate Dist Directory
+      - name: Fix and Copy Web Assets for Capacitor
         run: |
           mkdir -p dist
           
-          # إذا وجدنا مجلد بناء جاهز ننقله، وإلا سنبحث عن index.html وننسخه
-          if [ -d "dist" ] && [ -f "dist/index.html" ]; then
-            echo "Dist is already ready"
+          # التحقق من مكان وجود مخرجات البناء الحقيقية ونسخها
+          if [ -d "dist" ] && [ -f "dist/index.html" ] && [ "$(ls -A dist/assets 2>/dev/null)" ]; then
+            echo "Dist is already fully populated"
           elif [ -d "build" ] && [ -f "build/index.html" ]; then
             cp -r build/* dist/
-          elif [ -d ".output/public" ] && [ -f ".output/public/index.html" ]; then
-            cp -r .output/public/* dist/
-          else
-            # البحث عن أي ملف index.html في المستودع ونسخ مجلده إلى dist
-            FOUND_FILE=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" -not -path "./dist/*" | head -n 1)
-            if [ -n "$FOUND_FILE" ]; then
-              cp -r "$(dirname "$FOUND_FILE")"/* dist/
+          elif [ -d "dist" ] && [ ! -f "dist/index.html" ]; then
+            # البحث عن أي ملف index.html في المشروع ونسخه مع أصوله
+            FOUND_IDX=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" | head -n 1)
+            if [ -n "$FOUND_IDX" ]; then
+              cp -r "$(dirname "$FOUND_IDX")"/* dist/
             fi
           fi
 
-          # التحقق النهائي: إن لم يتوفر index.html ننشئ ملف مؤقت يطابق المشروع
-          if [ ! -f "dist/index.html" ]; then
-            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Nutri Pal</title></head><body><div id="root"></div></body></html>' > dist/index.html
+          # التحويل الإجباري للمسارات المطلقة إلى نسبية لكي يتعرف عليها أندرويد
+          if [ -f "dist/index.html" ]; then
+            sed -i 's|="/|="./|g' dist/index.html
+            sed -i 's|="/assets/|="./assets/|g' dist/index.html
+            sed -i "s|='/|='./|g" dist/index.html
           fi
 
       - name: Install Stable Capacitor Version
