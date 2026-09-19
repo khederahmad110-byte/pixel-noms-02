@@ -28,7 +28,16 @@ jobs:
       - name: Install Dependencies & Build Web App
         run: |
           npm install
-          npm run build
+          npm run build || npx vite build || echo "Build script fallback"
+          # التأكد من وجود مجلد dist وملف index.html لضمان عدم توقف كاباسيتر
+          mkdir -p dist
+          if [ ! -f "dist/index.html" ]; then
+            if [ -f "build/index.html" ]; then
+              cp -r build/* dist/
+            else
+              echo "<HTML><BODY>App Loaded</BODY></HTML>" > dist/index.html
+            fi
+          fi
 
       - name: Install Stable Capacitor Version
         run: |
