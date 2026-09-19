@@ -24,12 +24,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: تثبيت الحزم وبناء ملفات الويب الثابتة
+      - name: تثبيت الحزم ومحاولة البناء
         run: |
           npm install --legacy-peer-deps
           npx vite build --emptyOutDir || npm run build || true
 
-      - name: التأكد من وجود مجلد dist وملف HTML أساسي
+      - name: ضمان وجود مجلد الويب وملف HTML
         run: |
           mkdir -p dist
           if [ ! -f "dist/index.html" ]; then
