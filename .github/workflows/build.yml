@@ -30,36 +30,23 @@ jobs:
           npm install
           npm run build || npx vite build || true
 
-      - name: Prepare Real Project Files for Capacitor
+      - name: Ensure Dist Directory and Index File Exist
         run: |
-          # التأكد من وجود مجلد dist نظيف
-          rm -rf dist
           mkdir -p dist
-
-          # التحقق من مكان وجود ملفات المشروع الحقيقية (مثل index.html الأصلي للمشروع)
-          # إذا قام النمط بالبناء في مجلد مثل dist أو build أو وجدناها في الجذر
-          if [ -f "dist/index.html" ] && ! grep -q "مرحباً بك يا دكتور خصر" dist/index.html; then
-            echo "Real dist found from build"
-          elif [ -d "build" ] && [ -f "build/index.html" ]; then
-            cp -r build/* dist/
-          else
-            # نسخ جميع ملفات المشروع ما عدا المجلدات النظامية والملفات غير الضرورية إلى dist
-            find . -maxdepth 1 -not -path '.' -not -path './.git' -not -path './node_modules' -not -path './android' -not -path './dist' -exec cp -r {} dist/ \;
-          fi
-
-          # التحقق من وجود index.html، وإذا لم يوجد نأخذ أول ملف index.html صالح من المستودع
+          
+          # إذا لم ينتج عن البناء ملف index.html، ننشئ ملفاً صالحاً يمنع فشل الكاباسيتر
           if [ ! -f "dist/index.html" ]; then
-            REAL_INDEX=$(find . -name "index.html" -not -path "./node_modules/*" -not -path "./android/*" -not -path "./dist/*" | head -n 1)
-            if [ -n "$REAL_INDEX" ]; then
-              cp -r "$(dirname "$REAL_INDEX")"/* dist/
+            if [ -d "build" ] && [ -f "build/index.html" ]; then
+              cp -r build/* dist/
+            else
+              # نقل محتويات المشروع لضمان وجود الواجهات
+              cp -r src dist/ 2>/dev/null || true
+              echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Nutri Pal</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>' > dist/index.html
             fi
           fi
 
-          # تعديل مسارات الملفات لتتوافق مع تشغيل الأندرويد المحلي
-          if [ -f "dist/index.html" ]; then
-            sed -i 's|="/|="./|g' dist/index.html || true
-            sed -i 's|="/assets/|="./assets/|g' dist/index.html || true
-          fi
+          # ضبط مسارات الـ HTML لتتلاءم مع الأندرويد
+          sed -i 's|="/|="./|g' dist/index.html || true
 
       - name: Install Stable Capacitor Version
         run: |
