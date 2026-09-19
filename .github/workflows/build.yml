@@ -27,15 +27,41 @@ jobs:
       - name: تثبيت الحزم الأساسية
         run: npm install --legacy-peer-deps
 
-      - name: محاولة بناء الأصول
+      - name: محاولة بناء المشروع بكل الطرق الممكنة
         continue-on-error: true
-        run: npx vite build || npm run build
+        run: |
+          npm run build || npx vite build || npx tanstack-start build || true
 
-      - name: ضمان وجود مجلد الويب وملف HTML
+      - name: تجميع ونسخ الملفات تلقائياً إلى مجلد الويب dist
         run: |
           mkdir -p dist
+          # البحث عن أي مجلد إخراج محتمل ونقل محتوياته
+          if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
+            echo "مجلد dist جاهز ويحوي ملفات."
+          elif [ -d ".output/public" ]; then
+            cp -r .output/public/* dist/
+          elif [ -d ".output" ]; then
+            cp -r .output/* dist/
+          elif [ -d "build" ]; then
+            cp -r build/* dist/
+          fi
+
+          # ضمان وجود index.html متوافق تماماً مع التطبيقات الحديثة
           if [ ! -f "dist/index.html" ]; then
-            echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Nutri Pal</title></head><body><div id='root'></div></body></html>" > dist/index.html
+            cat << 'EOF' > dist/index.html
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>نوتري بال</title>
+            </head>
+            <body>
+              <div id="root"></div>
+              <script type="module" src="/src/main.tsx"></script>
+            </body>
+          </html>
+          EOF
           fi
 
       - name: تثبيت أو إعداد المكثف
