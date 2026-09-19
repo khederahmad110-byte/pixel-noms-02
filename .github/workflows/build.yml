@@ -34,20 +34,28 @@ jobs:
             echo "<HTML><BODY>Nutri Pal App</BODY></HTML>" > dist/index.html
           fi
 
-      - name: Install Ionic CLI & Capacitor
+      - name: Install Capacitor CLI & Core
         run: |
-          npm install -g @ionic/cli
           npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Init and Add Android Platform Cleanly
+      - name: Create Capacitor Config File
         run: |
-          npx cap init "Nutri Pal" "com.nutripal.app" --web-dir dist --force || true
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.nutripal.app",
+            "appName": "Nutri Pal",
+            "webDir": "dist",
+            "bundledWebRuntime": false
+          }
+          EOF
+
+      - name: Add Android Platform Cleanly
+        run: |
           rm -rf android
           npx cap add android
 
-      - name: Update Capacitor Config for Android
-        run: |
-          npx cap sync android
+      - name: Sync Capacitor
+        run: npx cap sync android
 
       - name: Grant execute permission for gradlew
         run: |
