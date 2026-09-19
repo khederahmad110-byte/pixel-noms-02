@@ -57,20 +57,19 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Fix Kotlin & Gradle Dependencies Completely
+      - name: Force Overwrite Kotlin Version in All Gradle Files
         run: |
           cd android
-          # تحديث متغيرات الكوتلين في ملف variables.gradle إن وجد
-          if [ -f "variables.gradle" ]; then
-            sed -i "s/kotlinVersion =.*/kotlinVersion = '1.9.24'/g" variables.gradle || true
-          fi
-          # تحديث في build.gradle الرئيسي
+          # البحث عن أي استخدام لإصدار كوتلين القديم 1.6.21 أو ما شابه واستبداله بالنسخة الحديثة 1.9.24
+          find . -name "*.gradle" -type f -exec sed -i "s/1.6.21/1.9.24/g" {} +
+          find . -name "*.gradle" -type f -exec sed -i "s/kotlin_version =.*/kotlin_version = '1.9.24'/g" {} +
+          find . -name "*.gradle" -type f -exec sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" {} +
+          
+          # إضافة إصدار كوتلين إجبارياً في ملف build.gradle الرئيسي إذا لم يكن موجوداً
           if [ -f "build.gradle" ]; then
-            sed -i "s/ext.kotlinVersion =.*/ext.kotlinVersion = '1.9.24'/g" build.gradle || true
-          fi
-          # إضافة أو تعديل كوتلين في بداية ملف build.gradle الرئيسي إذا لم يكن موجوداً
-          if ! grep -q "kotlinVersion" build.gradle; then
-            sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle || true
+            if ! grep -q "kotlinVersion" build.gradle; then
+              sed -i "/buildscript {/a \    ext.kotlinVersion = '1.9.24'" build.gradle || true
+            fi
           fi
 
       - name: Grant execute permission for gradlew
@@ -88,3 +87,4 @@ jobs:
         with:
           name: app-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          
