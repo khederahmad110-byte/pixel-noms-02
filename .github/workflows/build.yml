@@ -1,11 +1,37 @@
-- name: Install Dependencies & Build Web App
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies & Build Web App
         run: |
           npm install
           npm run build || npx vite build || echo "No build script"
-          # نسخ الملفات من أي مجلد محتمل إلى مجلد dist الخاص بكاباسيتر
           mkdir -p dist
           if [ -d "dist" ] && [ "$(ls -A dist)" ]; then
-            echo "Dist exists and is not empty"
+            echo "Dist exists"
           elif [ -d "build" ]; then
             cp -r build/* dist/
           elif [ -d "out" ]; then
@@ -15,3 +41,42 @@
           else
             echo "<h1>Nutri Pal Main App</h1>" > dist/index.html
           fi
+
+      - name: Install Stable Capacitor Version
+        run: |
+          npm install @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5
+
+      - name: Create Capacitor Config File
+        run: |
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.nutripal.app",
+            "appName": "Nutri Pal",
+            "webDir": "dist",
+            "bundledWebRuntime": false
+          }
+          EOF
+
+      - name: Add Android Platform Cleanly
+        run: |
+          rm -rf android
+          npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Grant execute permission for gradlew
+        run: |
+          cd android
+          chmod +x gradlew
+
+      - name: Build APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nutripal-app
+          path: android/app/build/outputs/apk/debug/app-debug.apk
