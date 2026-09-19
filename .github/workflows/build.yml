@@ -29,8 +29,6 @@ jobs:
         run: |
           npm install
           npm run build
-          
-          # التأكد من وجود مجلد dist وفي حال كان فارغاً أو غير موجود نحفظ ملف مؤقت لضمان نجاح كاباسيتر
           mkdir -p dist
           if [ ! -f "dist/index.html" ]; then
             echo "<HTML><BODY>Nutri Pal App</BODY></HTML>" > dist/index.html
@@ -48,7 +46,7 @@ jobs:
       - name: Install Capacitor & Add Android
         run: |
           npm install @capacitor/cli @capacitor/core @capacitor/android
-          npx cap add android --force
+          npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
