@@ -48,7 +48,7 @@ jobs:
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "com.nutripal.app",
-            "appName": "رفيق التغذية",
+            "appName": "رفيق التغذية الذكي",
             "webDir": "www",
             "bundledWebRuntime": false,
             "server": {
