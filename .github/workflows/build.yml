@@ -38,7 +38,7 @@ jobs:
           cat << 'EOF' > www/index.html
           <!DOCTYPE html>
           <html lang="ar" dir="rtl">
-          <head><meta charset="UTF-8"><title>نوتري بال</title></head>
+          <head><meta charset="UTF-8"><title>رفيق التغذية</title></head>
           <body></body>
           </html>
           EOF
@@ -48,7 +48,7 @@ jobs:
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "com.nutripal.app",
-            "appName": "نوتري بال",
+            "appName": "رفيق التغذية",
             "webDir": "www",
             "bundledWebRuntime": false,
             "server": {
@@ -63,6 +63,12 @@ jobs:
           rm -rf android
           bunx cap add android
           bunx cap sync android
+
+      - name: تثبيت أداة توليد الأيقونات
+        run: bun add -D @capacitor/assets
+
+      - name: توليد الأيقونة وشاشة الإقلاع لأندرويد
+        run: bunx capacitor-assets generate --android --iconBackgroundColor '#FAFAF8' --splashBackgroundColor '#FAFAF8'
 
       - name: منح صلاحية التنفيذ لـ gradlew
         run: |
