@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import {
   AlertTriangle,
   BellRing,
@@ -21,7 +20,7 @@ import { MicroTracker } from "@/components/MicroTracker";
 import { HistoryView } from "@/components/HistoryView";
 import type { DayArchive } from "@/lib/history";
 import { EditPlanDialog } from "@/components/EditPlanDialog";
-import { analyzeMeal, type MealAnalysis } from "@/lib/analyze-meal.functions";
+import { analyzeMeal, type MealAnalysis } from "@/lib/analyze-meal-client";
 import { MICRO_INFO, calcDRI, sumMicros, MICRO_KEYS } from "@/lib/micronutrients";
 import { announce, requestNotifyPermission, speak } from "@/lib/notify";
 import {
@@ -65,7 +64,6 @@ export function Dashboard({
   onDeleteDay: (dayKey: string) => void;
   onDeleteMonth: (monthPrefix: string) => void;
 }) {
-  const analyze = useServerFn(analyzeMeal);
   const fileRef = useRef<HTMLInputElement>(null);
   const [mealType, setMealType] = useState<MealType>("فطور");
   const [image, setImage] = useState<string | null>(null);
@@ -141,7 +139,7 @@ export function Dashboard({
     setImage(dataUrl);
     setBusy(true);
     try {
-      const result = await analyze({ data: { imageDataUrl: dataUrl } });
+      const result = await analyzeMeal({ imageDataUrl: dataUrl });
       pushResult(result, "📸");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "تعذّر تحليل الصورة");
@@ -159,7 +157,7 @@ export function Dashboard({
     }
     setBusy(true);
     try {
-      const result = await analyze({ data: { text } });
+      const result = await analyzeMeal({ text });
       pushResult(result, "🔍");
       setTextInput("");
     } catch (err) {
@@ -341,7 +339,6 @@ export function Dashboard({
                 />
               )}
             </section>
-
 
             <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
               <h2 className="font-semibold">سجل وجبات اليوم</h2>
