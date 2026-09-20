@@ -1,33 +1,87 @@
-name: Build and Deploy
+name: بناء ملف APK لنظام Android
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: رمز الدفع
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: قم بتثبيت JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: قم بتثبيت Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: قم بتثبيت Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-      - name: Build project
-        run: npm run build
+      - name: تثبيت الحزم الأساسية (Bun، مطابقة لـ bun.lock)
+        run: bun install --frozen-lockfile
+
+      - name: بناء المشروع (بدون إخفاء الأخطاء)
         env:
-          VITE_API_BASE: ${{ secrets.VITE_API_BASE }}
- 
+          VITE_API_BASE_URL: https://pixel-noms-02.lovable.app
+        run: bun run build
+
+      - name: فحص مخرجات البناء (تشخيص)
+        run: |
+          echo "=== محتويات المجلد الجذري ==="
+          ls -la
+          echo ""
+          echo "=== هل يوجد .output/public؟ ==="
+          [ -d ".output/public" ] && find .output/public -maxdepth 2 -type f -name "index.html" || echo "لا يوجد"
+
+      - name: تجهيز مجلد www للنشر
+        run: |
+          rm -rf www
+          if [ -f ".output/public/index.html" ]; then
+            echo "تم العثور على المخرجات الثابتة (prerendered) في .output/public"
+            cp -r .output/public www
+          else
+            echo "❌ لم يتم العثور على index.html ثابت حتى بعد تفعيل prerender"
+            echo "راجع خطوة الفحص أعلاه وتأكد أن vite.config.ts يحتوي إعداد prerender.enabled=true"
+            exit 1
+          fi
+          echo "=== محتويات www النهائية ==="
+          ls -la www
+
+      - name: تثبيت Capacitor
+        run: bun add @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5
+
+      - name: إنشاء ملف تكوين Capacitor
+        run: |
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.nutripal.app",
+            "appName": "نوتري بال",
+            "webDir": "www",
+            "bundledWebRuntime": false,
+            "server": {
+              "androidScheme": "https"
+            }
+          }
+          EOF
+
+      - name: إعداد منصة أندرويد
+        run: |
+          rm -rf android
+          bunx cap add android
+          bunx cap sync android
+
       - name: منح صلاحية التنفيذ لـ gradlew
         run: |
           cd android
