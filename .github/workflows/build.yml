@@ -27,49 +27,53 @@ jobs:
       - name: تثبيت الحزم الأساسية
         run: npm install --legacy-peer-deps
 
-      - name: محاولة بناء مشروع TanStack Start (تخطي الفشل المؤقت)
-        continue-on-error: true
-        run: npm run build || npx vite build
+      - name: بناء المشروع (بدون إخفاء الأخطاء)
+        run: npm run build
 
-      - name: توفير ونسخ المخرجات الحقيقية إلى مجلد dist
+      - name: فحص مخرجات البناء (تشخيص)
         run: |
-          mkdir -p dist
-          if [ -d ".output/public" ]; then
-            cp -r .output/public/* dist/
-          elif [ -d ".output" ]; then
-            cp -r .output/* dist/
-          elif [ -d "dist" ] && [ "$(ls -A dist)" ]; then
-            echo "مجلد dist جاهز."
-          fi
+          echo "=== محتويات المجلد الجذري ==="
+          ls -la
+          echo ""
+          echo "=== هل يوجد .output؟ ==="
+          [ -d ".output" ] && find .output -maxdepth 3 -type d || echo "لا يوجد .output"
+          echo ""
+          echo "=== هل يوجد dist؟ ==="
+          [ -d "dist" ] && find dist -maxdepth 3 -type d || echo "لا يوجد dist"
+          echo ""
+          echo "=== هل يوجد build؟ ==="
+          [ -d "build" ] && find build -maxdepth 3 -type d || echo "لا يوجد build"
 
-          # إذا لم ينتج البناء ملف HTML، ننشئ قالب يدعم مشروعك الحقيقي
-          if [ ! -f "dist/index.html" ]; then
-            cat << 'EOF' > dist/index.html
-          <!DOCTYPE html>
-          <html lang="ar" dir="rtl">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>نوتري بال</title>
-            </head>
-            <body>
-              <div id="root"></div>
-              <script type="module" src="/src/main.tsx"></script>
-            </body>
-          </html>
-          EOF
+      - name: تجهيز مجلد www للنشر
+        run: |
+          rm -rf www
+          if [ -f ".output/public/index.html" ]; then
+            echo "تم العثور على مخرجات TanStack Start (Nitro) في .output/public"
+            cp -r .output/public www
+          elif [ -f "dist/index.html" ]; then
+            echo "تم العثور على مخرجات Vite القياسية في dist"
+            cp -r dist www
+          elif [ -f "build/index.html" ]; then
+            echo "تم العثور على مخرجات في build"
+            cp -r build www
+          else
+            echo "❌ لم يتم العثور على index.html في أي مسار متوقع"
+            echo "راجع نتائج خطوة الفحص أعلاه لمعرفة المسار الصحيح يدوياً"
+            exit 1
           fi
+          echo "=== محتويات www النهائية ==="
+          ls -la www
 
-      - name: تثبيت المكثف
+      - name: تثبيت Capacitor
         run: npm install @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5 --legacy-peer-deps
 
-      - name: إنشاء ملف تكوين المكثف
+      - name: إنشاء ملف تكوين Capacitor
         run: |
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "com.nutripal.app",
             "appName": "نوتري بال",
-            "webDir": "dist",
+            "webDir": "www",
             "bundledWebRuntime": false
           }
           EOF
