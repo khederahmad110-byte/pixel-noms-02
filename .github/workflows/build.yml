@@ -29,40 +29,21 @@ jobs:
         with:
           bun-version: latest
 
-      - name: تثبيت الحزم الأساسية (Bun، مطابقة لـ bun.lock)
-        run: bun install --frozen-lockfile
-
-      - name: بناء المشروع (بدون إخفاء الأخطاء)
-        env:
-          VITE_API_BASE_URL: https://pixel-noms-02.lovable.app
-        run: bun run build
-
-      - name: فحص مخرجات البناء (تشخيص)
-        run: |
-          echo "=== محتويات المجلد الجذري ==="
-          ls -la
-          echo ""
-          echo "=== هل يوجد .output/public؟ ==="
-          [ -d ".output/public" ] && find .output/public -maxdepth 2 -type f -name "index.html" || echo "لا يوجد"
-
-      - name: تجهيز مجلد www للنشر
-        run: |
-          rm -rf www
-          if [ -f ".output/public/index.html" ]; then
-            echo "تم العثور على المخرجات الثابتة (prerendered) في .output/public"
-            cp -r .output/public www
-          else
-            echo "❌ لم يتم العثور على index.html ثابت حتى بعد تفعيل prerender"
-            echo "راجع خطوة الفحص أعلاه وتأكد أن vite.config.ts يحتوي إعداد prerender.enabled=true"
-            exit 1
-          fi
-          echo "=== محتويات www النهائية ==="
-          ls -la www
-
-      - name: تثبيت Capacitor
+      - name: تثبيت Capacitor فقط (لا حاجة لبناء المشروع كاملاً)
         run: bun add @capacitor/cli@5 @capacitor/core@5 @capacitor/android@5
 
-      - name: إنشاء ملف تكوين Capacitor
+      - name: إنشاء مجلد ويب بديل (placeholder) لتفعيل Capacitor
+        run: |
+          mkdir -p www
+          cat << 'EOF' > www/index.html
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head><meta charset="UTF-8"><title>نوتري بال</title></head>
+          <body></body>
+          </html>
+          EOF
+
+      - name: إنشاء ملف تكوين Capacitor (يفتح مباشرة الرابط المنشور)
         run: |
           cat << 'EOF' > capacitor.config.json
           {
@@ -71,6 +52,7 @@ jobs:
             "webDir": "www",
             "bundledWebRuntime": false,
             "server": {
+              "url": "https://pixel-noms-02.lovable.app",
               "androidScheme": "https"
             }
           }
